@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Performance &middot; Credit Card Approval Prediction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <div class="ledger-bar">
+    <div class="ledger-bar-inner">
+      <a class="brand" href="/">
+        <span class="mark">CCA</span> Credit Card Approval Prediction
+      </a>
+      <nav class="nav-links">
+        <a href="/">New Application</a>
+        <a href="/about">Model Performance</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    <div class="page-head">
+      <p class="eyebrow">Model Room &middot; Reference</p>
+      <h1>How the prediction engine was built.</h1>
+      <p class="lede">
+        Four classification algorithms were trained on historical applicant
+        and repayment data, then compared head-to-head. The best performer,
+        <strong>{{ best_model_name }}</strong>, is the one currently powering
+        every prediction on this site.
+      </p>
+    </div>
+
+    {% if metrics and metrics.all_models %}
+    <div class="section-block">
+      <h3>Model comparison</h3>
+      <table class="model-table">
+        <thead>
+          <tr>
+            <th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1-score</th><th>ROC-AUC</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in metrics.all_models %}
+          <tr class="{{ 'is-best' if m.model == best_model_name else '' }}">
+            <td>{{ m.model }}{% if m.model == best_model_name %} &nbsp;&#9733; selected{% endif %}</td>
+            <td>{{ "%.1f"|format(m.accuracy * 100) }}%</td>
+            <td>{{ "%.1f"|format(m.precision * 100) }}%</td>
+            <td>{{ "%.1f"|format(m.recall * 100) }}%</td>
+            <td>{{ "%.1f"|format(m.f1_score * 100) }}%</td>
+            <td>{{ "%.1f"|format(m.roc_auc * 100) }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="disclaimer">
+        Model selection is based on F1-score, which balances precision and recall --
+        the right tradeoff here since approved applicants vastly outnumber rejected
+        ones in historical data.
+      </p>
+    </div>
+    {% else %}
+    <div class="error-box">
+      No metrics report found. Run <code>python data/train_models.py</code> from the
+      project root to train the models and generate this report.
+    </div>
+    {% endif %}
+
+    <div class="section-block">
+      <h3>Pipeline overview</h3>
+      <table class="model-table">
+        <tbody>
+          <tr><th>Step</th><th>Description</th></tr>
+          <tr><td>1. Data source</td><td>application_record.csv (demographics &amp; finances) + credit_record.csv (monthly repayment history)</td></tr>
+          <tr><td>2. Labeling</td><td>Multi-class STATUS codes (0-5, C, X) collapsed into a binary TARGET: 1 if ever 60+ days past due, else 0</td></tr>
+          <tr><td>3. Feature engineering</td><td>Age and years-employed derived from raw day counts; income-per-family-member ratio computed; missing occupation filled as "Unknown"; EMI paid-off count, EMI pastdue count, and number of loans aggregated per applicant from their monthly credit history</td></tr>
+          <tr><td>4. Encoding</td><td>Categorical fields label-encoded; numeric fields standard-scaled</td></tr>
+          <tr><td>5. Modeling</td><td>Logistic Regression, Decision Tree, Random Forest, and XGBoost trained with class-imbalance handling</td></tr>
+          <tr><td>6. Selection</td><td>Best model chosen by F1-score on a held-out 20% test split</td></tr>
+          <tr><td>7. Deployment</td><td>Best model + fitted pipeline saved with joblib, served via this Flask app and optionally IBM Watson Machine Learning</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <a href="/" class="btn btn-ghost">&larr; Back to application form</a>
+
+    <footer>
+      <span>Credit Card Approval Prediction</span>
+      <span>Skills: XGBoost &middot; scikit-learn &middot; Flask &middot; NumPy &middot; Matplotlib</span>
+    </footer>
+  </div>
+
+</body>
+</html>

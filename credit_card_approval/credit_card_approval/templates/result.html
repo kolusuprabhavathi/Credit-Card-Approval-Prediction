@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prediction Result &middot; Credit Card Approval Prediction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <div class="ledger-bar">
+    <div class="ledger-bar-inner">
+      <a class="brand" href="/">
+        <span class="mark">CCA</span> Credit Card Approval Prediction
+      </a>
+      <nav class="nav-links">
+        <a href="/">New Application</a>
+        <a href="/about">Model Performance</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    <div class="page-head">
+      <p class="eyebrow">Decision Output &middot; Form 01 Result</p>
+      <h1>Prediction result</h1>
+    </div>
+
+    {% if error %}
+      <div class="error-box">
+        <strong>Couldn't generate a prediction.</strong><br>
+        {{ error }}
+      </div>
+      <a href="/" class="btn btn-ghost">&larr; Back to application form</a>
+    {% else %}
+
+      <div class="verdict-card">
+        <div class="verdict-stamp {{ 'approved' if result.prediction == 0 else 'rejected' }}">
+          <span class="stamp-mark">{{ 'APPROVED' if result.prediction == 0 else 'REJECTED' }}</span>
+          <div class="verdict-copy">
+            <h2>{{ 'Likely to be approved' if result.prediction == 0 else 'Likely to be rejected' }}</h2>
+            <p>Model used: {{ result.model_used }}</p>
+          </div>
+        </div>
+        <div class="prob-bars">
+          <div class="prob-row">
+            <span class="prob-label">Approval likelihood</span>
+            <div class="prob-track"><div class="prob-fill approve" style="width: {{ result.approval_probability }}%;"></div></div>
+            <span class="prob-value">{{ result.approval_probability }}%</span>
+          </div>
+          <div class="prob-row">
+            <span class="prob-label">Rejection likelihood</span>
+            <div class="prob-track"><div class="prob-fill reject" style="width: {{ result.rejection_probability }}%;"></div></div>
+            <span class="prob-value">{{ result.rejection_probability }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <h3>Applicant summary</h3>
+        <table class="applicant-table">
+          {% for key, value in applicant.items() %}
+          <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <a href="/" class="btn btn-ghost">&larr; Screen another applicant</a>
+    {% endif %}
+
+    <footer>
+      <span>Credit Card Approval Prediction</span>
+      <span><a href="/about">View model performance &rarr;</a></span>
+    </footer>
+  </div>
+
+</body>
+</html>

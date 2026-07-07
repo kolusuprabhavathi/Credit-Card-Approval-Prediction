@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credit Card Approval Prediction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <div class="ledger-bar">
+    <div class="ledger-bar-inner">
+      <a class="brand" href="/">
+        <span class="mark">CCA</span> Credit Card Approval Prediction
+      </a>
+      <nav class="nav-links">
+        <a href="/">New Application</a>
+        <a href="/about">Model Performance</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    <div class="page-head">
+      <p class="eyebrow">Applicant Intake &middot; Form 01</p>
+      <h1>Screen a credit card application in seconds.</h1>
+      <p class="lede">
+        Enter the applicant's financial and demographic details below. The model
+        compares this profile against historical repayment patterns and returns
+        an instant approve / reject recommendation for analyst review.
+      </p>
+    </div>
+
+    <form class="ledger-card" action="/predict" method="POST">
+
+      <div class="form-section">
+        <p class="section-label"><span class="num">1</span> Personal details</p>
+        <div class="field-grid">
+          <div class="field">
+            <label for="gender">Gender</label>
+            <select name="gender" id="gender" required>
+              {% for c in choices.CODE_GENDER %}<option value="{{ c }}">{{ 'Male' if c == 'M' else 'Female' }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="age_years">Age (years)</label>
+            <input type="number" name="age_years" id="age_years" min="18" max="100" step="1" value="32" required>
+          </div>
+          <div class="field">
+            <label for="family_status">Family status</label>
+            <select name="family_status" id="family_status" required>
+              {% for c in choices.NAME_FAMILY_STATUS %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="cnt_children">Number of children</label>
+            <input type="number" name="cnt_children" id="cnt_children" min="0" max="10" value="0" required>
+          </div>
+          <div class="field">
+            <label for="cnt_fam_members">Total family members</label>
+            <input type="number" name="cnt_fam_members" id="cnt_fam_members" min="1" max="15" value="1" required>
+          </div>
+          <div class="field">
+            <label for="education_type">Education level</label>
+            <select name="education_type" id="education_type" required>
+              {% for c in choices.NAME_EDUCATION_TYPE %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="section-label"><span class="num">2</span> Financial &amp; employment profile</p>
+        <div class="field-grid">
+          <div class="field">
+            <label for="annual_income">Annual income</label>
+            <input type="number" name="annual_income" id="annual_income" min="0" step="100" value="180000" required>
+            <span class="hint">In your local currency, gross annual income</span>
+          </div>
+          <div class="field">
+            <label for="income_type">Income type</label>
+            <select name="income_type" id="income_type" required>
+              {% for c in choices.NAME_INCOME_TYPE %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="occupation_type">Occupation</label>
+            <select name="occupation_type" id="occupation_type">
+              {% for c in choices.OCCUPATION_TYPE %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="years_employed">Years employed</label>
+            <input type="number" name="years_employed" id="years_employed" min="0" max="60" step="0.5" value="5" required>
+            <span class="hint">Enter 0 if a pensioner or not currently employed</span>
+          </div>
+          <div class="field">
+            <label for="own_car">Owns a car?</label>
+            <select name="own_car" id="own_car" required>
+              {% for c in choices.FLAG_OWN_CAR %}<option value="{{ c }}">{{ 'Yes' if c == 'Y' else 'No' }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="own_realty">Owns property / realty?</label>
+            <select name="own_realty" id="own_realty" required>
+              {% for c in choices.FLAG_OWN_REALTY %}<option value="{{ c }}">{{ 'Yes' if c == 'Y' else 'No' }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="housing_type">Housing situation</label>
+            <select name="housing_type" id="housing_type" required>
+              {% for c in choices.NAME_HOUSING_TYPE %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="section-label"><span class="num">3</span> Credit &amp; EMI history</p>
+        <div class="field-grid">
+          <div class="field">
+            <label for="emi_paid_off">EMI paid off</label>
+            <input type="number" name="emi_paid_off" id="emi_paid_off" min="0" max="120" step="1" value="4" required>
+            <span class="hint">Number of past EMI cycles paid off in full</span>
+          </div>
+          <div class="field">
+            <label for="emi_pastdue">EMI of pastdues</label>
+            <input type="number" name="emi_pastdue" id="emi_pastdue" min="0" max="120" step="1" value="1" required>
+            <span class="hint">Number of months the applicant fell past due</span>
+          </div>
+          <div class="field">
+            <label for="number_of_loans">Number of loans</label>
+            <input type="number" name="number_of_loans" id="number_of_loans" min="0" max="50" step="1" value="2" required>
+            <span class="hint">Total active loan/credit accounts on record</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <p class="section-label"><span class="num">4</span> Contact on file</p>
+        <div class="checkbox-row">
+          <label class="checkbox-field"><input type="checkbox" name="work_phone" value="1"> Work phone provided</label>
+          <label class="checkbox-field"><input type="checkbox" name="phone" value="1" checked> Personal phone provided</label>
+          <label class="checkbox-field"><input type="checkbox" name="email" value="1"> Email provided</label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Run approval prediction</button>
+        <p class="disclaimer">
+          This is a machine-learning estimate based on historical data and is intended
+          to support, not replace, a human underwriting decision.
+        </p>
+      </div>
+    </form>
+
+    <footer>
+      <span>Credit Card Approval Prediction &middot; Logistic Regression / Random Forest / XGBoost / Decision Tree</span>
+      <span><a href="/about">View model performance &rarr;</a></span>
+    </footer>
+  </div>
+
+</body>
+</html>

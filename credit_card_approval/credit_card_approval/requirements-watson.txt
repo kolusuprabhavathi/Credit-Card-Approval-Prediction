@@ -1,0 +1,9 @@
+# OPTIONAL: only needed for deployment/deploy_to_watson.py and
+# deployment/call_watson_endpoint.py (IBM Watson Machine Learning).
+#
+# Install this in its OWN separate virtual environment -- do not install it
+# alongside requirements.txt. ibm-watson-machine-learning pins
+# pandas<1.6.0, which conflicts with the modern pandas version the main
+# app/model training uses.
+ibm-watson-machine-learning==1.0.345
+requests==2.32.3

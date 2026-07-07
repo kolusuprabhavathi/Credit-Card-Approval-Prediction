@@ -1,0 +1,21 @@
+flask==3.1.3
+numpy==2.4.4
+pandas==3.0.2
+scikit-learn==1.8.0
+xgboost==2.1.1
+matplotlib==3.10.8
+seaborn==0.13.2
+joblib==1.5.3
+requests==2.32.3
+
+# NOTE: IBM Watson Machine Learning deployment is OPTIONAL and lives in its
+# own file (requirements-watson.txt) because ibm-watson-machine-learning
+# pins pandas<1.6.0, which directly conflicts with pandas==3.0.2 above and
+# will make `pip install -r requirements.txt` fail with a
+# ResolutionImpossible error if installed together.
+#
+# Do NOT install requirements-watson.txt into this same environment.
+# If you need to deploy to Watson, create a SEPARATE venv for that step:
+#   python -m venv venv-watson
+#   venv-watson\Scripts\Activate.ps1   (Windows)
+#   pip install -r requirements-watson.txt
